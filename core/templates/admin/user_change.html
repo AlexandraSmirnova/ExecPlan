@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+    {% if original.id and user != original and not original.is_staff %}
+        <li>
+            <a href="{% url 'admin:login_as_user' original.id %}">Зайти под пользователем</a>
+        </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

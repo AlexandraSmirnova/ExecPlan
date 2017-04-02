@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>Привет!</div>
+
+    {%  if projects %}
+        Выберите проект
+        {% for project in projects %}
+            <a href="{% url 'schedule:project' project.id %}">{{ project.name }}</a>
+        {% endfor %}
+    {% endif %}
+
+
+{% endblock %}

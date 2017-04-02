@@ -1,0 +1,8 @@
+Django==1.9.9
+django-import-export==0.5.1
+gunicorn==19.7.0
+Mysql-python==1.2.5
+Pillow==4.0.0
+
+
+
