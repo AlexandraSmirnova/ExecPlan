@@ -67,7 +67,7 @@ class Task(DefaultModel):
             'duration': self.duration,
             'start_time': None,
             'end_time': None,
-            'predecessors': list(Predecessor.objects.filter(task=self).values_list('id', flat=True))
+            'predecessors': list(Predecessor.objects.filter(task=self).values_list('predecessor_id', flat=True))
         }
 
 
