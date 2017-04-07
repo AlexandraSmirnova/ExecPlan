@@ -4,15 +4,18 @@ class BranchAndBoundAlgorithm(object):
         self.operators = operators
         self.individ = None
         self.best = None
+        self.statistic = []
 
     def run(self):
         self.individ = self.operators.create_individ()
         self.best = self.operators.fitness(self.individ)
-        return self.branch([])
+        self.statistic.append(self.best)
+        self.branch([])
+        return self.statistic
 
     def branch(self, path=None):
         solutions = [x for x in range(self.operators.task_count) if x not in path]
-        print solutions
+        print path
 
         for solution in solutions:
             new_path = path + list([solution])
@@ -21,6 +24,7 @@ class BranchAndBoundAlgorithm(object):
                 if len(solutions) == 1:
                     self.individ = new_path
                     self.best = low_boundary
+                    self.statistic.append(self.best)
                 else:
                     self.branch(new_path)
 

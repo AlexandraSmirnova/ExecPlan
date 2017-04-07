@@ -94,7 +94,7 @@ class ScheduleOperators(object):
 
     def create_individ(self):
         i = 0
-        while i < 200000:
+        while i < 300000:
             chromosome = list(np.random.permutation([x for x in range(0, self.task_count)]))
             if self.check_chromosome(chromosome):
                 return chromosome

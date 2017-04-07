@@ -9,8 +9,8 @@ from core.models import DefaultModel, User
 
 class Project(DefaultModel):
     class Meta:
-        verbose_name = 'проект'
-        verbose_name_plural = 'проекты'
+        verbose_name = 'Проект'
+        verbose_name_plural = 'Проекты'
 
     name = models.CharField(verbose_name='название', max_length=255)
     author = models.ForeignKey(User, verbose_name='автор')
@@ -21,8 +21,8 @@ class Project(DefaultModel):
 
 class ProjectMember(DefaultModel):
     class Meta:
-        verbose_name = 'участник проекта'
-        verbose_name_plural = 'участники проектов'
+        verbose_name = 'Участник проекта'
+        verbose_name_plural = 'Участники проектов'
 
     user = models.ForeignKey(User, verbose_name='пользователь')
     project = models.ForeignKey(Project, verbose_name='проект')
@@ -40,8 +40,8 @@ class TaskManager(models.Manager):
 
 class Task(DefaultModel):
     class Meta:
-        verbose_name = 'задача'
-        verbose_name_plural = 'задачи'
+        verbose_name = 'Задача'
+        verbose_name_plural = 'Задачи'
 
     name = models.CharField(verbose_name='название', max_length=255)
     description = models.TextField(verbose_name='описание', blank=True, null=True)
@@ -73,8 +73,8 @@ class Task(DefaultModel):
 
 class Predecessor(models.Model):
     class Meta:
-        verbose_name = 'предшественник'
-        verbose_name_plural = 'предшественники'
+        verbose_name = 'Предшественник'
+        verbose_name_plural = 'Предшественники'
 
     task = models.ForeignKey(Task, verbose_name='основной таск')
     predecessor = models.ForeignKey(Task, verbose_name='предшественник', related_name='predecessor_task')

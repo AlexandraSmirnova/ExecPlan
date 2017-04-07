@@ -4,12 +4,18 @@
 {% block content %}
     <h3>Проект: {{ project.name }}</h3>
     <div>Составить расписание</div>
-    <form class="select-algorithm-form" action="{% url 'schedule:ga' %}" method='post'>
+    <form class="genetic-algorithm-form" action="{% url 'schedule:ga' %}" method='post'>
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ project.id }}">
         <input type="submit" value="Генетический алгорим">
+    </form>
+    <form class="branch-and-bound-algorithm-form" action="{% url 'schedule:branch_and_bound' %}" method='post'>
+        {% csrf_token %}
+        <input type="hidden" name="id" value="{{ project.id }}">
+        <input type="submit" value="Метод ветвей и границ">
         <div class="statistic"></div>
     </form>
+    <div class="statistic"></div>
 {% endblock %}
 
 {% block body_js %}
