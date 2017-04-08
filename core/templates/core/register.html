@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <h3>Регистрация</h3>
+        <form id="js-reg-form" class="form-horizontal" action="{% url 'core:register' %}" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group row">
+                    {{ field.label_tag }}
+                    <div class="col-3">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                <br>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+    <script>
+        $('#js-reg-form').submit(function (event) {
+            event.preventDefault();
+            $.post($(this).attr('action'), $(this).serialize())
+                .done(function (response) {
+                    console.log(response); if (response.status === 'OK') { location.replace(response.success_url); }
+                }).fail(function (xhr, responseText) {});
+        });
+    </script>
+{% endblock %}

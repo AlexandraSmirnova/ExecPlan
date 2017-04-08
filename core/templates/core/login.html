@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h3>Вход</h3>
+        <form id="js-login-form" class="form-horizontal" action='{% url 'core:login' %}' method="post">
+            {% csrf_token %}
+            <div class="form-group row">
+                <label for="id_email" class="col-2 col-form-label">Email</label>
+                <div class="col-2">
+                    <input type="email" class="form-control" id="id_email" name="email">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="id_password" class="col-2 col-form-label">Пароль</label>
+                <div class="col-sm-2">
+                    <input type="password" class="form-control" id="id_password" name="password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+    </div>
+    <script>
+        $('#js-login-form').submit(function (event) {
+            event.preventDefault();
+            $.post($(this).attr('action'), $(this).serialize())
+                .done(function (response) {
+                    console.log(response); if (response.status === 'OK') { location.replace(response.success_url); }
+                }).fail(function (xhr, responseText) {});
+        });
+    </script>
+{% endblock %}

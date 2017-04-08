@@ -11,7 +11,7 @@ from scheduling.models import Project, Task
 
 
 class ProjectView(DetailView):
-    template_name = 'project.html'
+    template_name = 'sceduling/project.html'
     model = Project
     context_object_name = 'project'
     pk_url_kwarg = 'project_id'

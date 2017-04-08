@@ -113,6 +113,12 @@ LOGIN_URL = '/'
 LOGIN_ERROR_URL = '/'
 LOGIN_REDIRECT_URL = '/profile/'
 
+AUTH_MODEL_BACKEND = 'django.contrib.auth.backends.ModelBackend'
+
+AUTHENTICATION_BACKENDS = [
+    AUTH_MODEL_BACKEND
+]
+
 
 # Internationalization
 

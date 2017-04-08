@@ -15,7 +15,6 @@ from core.resources import UserResource
 
 @admin.register(User)
 class UserAdmin(ImportExportMixin, DjangoUserAdmin):
-    change_form_template = 'admin/user_change.html'
 
     list_display = ('get_avatar_img', 'email', 'first_name', 'last_name', 'date_joined', 'last_login')
     list_filter = ('is_active', 'is_staff', 'is_superuser', 'groups')
@@ -40,26 +39,6 @@ class UserAdmin(ImportExportMixin, DjangoUserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')}),
     )
     resource_class = UserResource
-
-    def get_urls(self):
-        urls = super(UserAdmin, self).get_urls()
-        my_urls = [
-            url(r'^(?P<user_id>\d+)/login_as_user/$',
-                self.admin_site.admin_view(self.login_as_user),
-                name='login_as_user'),
-        ]
-        return my_urls + urls
-
-    @staticmethod
-    def login_as_user(request, user_id):
-        user = User.objects.filter(id=user_id).first()
-        if not user:
-            messages.add_message(request, messages.ERROR, u'Несуществующий пользователь')
-            return HttpResponseRedirect('/ssadmin/core/user/{0}/'.format(user_id))
-
-        user = authenticate(admin=request.user, email=user.email)
-        login(request, user)
-        return HttpResponseRedirect(reverse('core:profile'))
 
     def get_avatar_img(self, obj):
         default_avatar = u'core/img/placeholder_200.png'
