@@ -1,4 +1,14 @@
 $(document).ready(function () {
+    $('.js-open-ga-form').click( function (event) {
+        event.preventDefault();
+        $('.genetic-algorithm-form').toggle();
+    });
+
+    $('.js-submit-bb').click( function (event) {
+        event.preventDefault();
+        $('.branch-and-bound-algorithm-form').submit();
+    });
+
     $('.genetic-algorithm-form').submit(function (event) {
         event.preventDefault();
         $.post($(this).attr('action'), $(this).serialize())

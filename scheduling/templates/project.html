@@ -4,18 +4,30 @@
 {% block content %}
     <h3>Проект: {{ project.name }}</h3>
     <div>Составить расписание</div>
-    <form class="genetic-algorithm-form" action="{% url 'schedule:ga' %}" method='post'>
+
+    <a href="#" class="js-open-ga-form">Генетический алгоритм</a>
+    <form class="genetic-algorithm-form hidden" action="{% url 'schedule:ga' %}" method='post'>
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ project.id }}">
-        <input type="submit" value="Генетический алгорим">
+        <label for="prob_cross">Соотношение кроссинговера к мутации</label>
+        <input type="number" name="probability_crossover" id="prob_cross" min="0" max="1" step="0.1">
+        <br>
+        <label for="pop_size">Количество особей в популяции</label>
+        <input type="number" name="population_size" id="pop_size">
+        <br>
+        <label for="limit">Максимальное число популяций</label>
+        <input type="number" name="limit" id="limit">
+        <br>
+        <input type="submit" value="Запустить алгоритм">
     </form>
+
     <form class="branch-and-bound-algorithm-form" action="{% url 'schedule:branch_and_bound' %}" method='post'>
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ project.id }}">
-        <input type="submit" value="Метод ветвей и границ">
-        <div class="statistic"></div>
+        <a href="#" class="js-submit-bb">Метод ветвей и границ</a>
+{#        <input type="submit" value="Метод ветвей и границ">#}
     </form>
-    <div class="statistic"></div>
+    <div class="statistic hidden"></div>
 {% endblock %}
 
 {% block body_js %}
