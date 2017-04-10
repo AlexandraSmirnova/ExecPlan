@@ -10,7 +10,7 @@ from django.views.generic.detail import DetailView
 from app import settings
 from core.forms import RegisterForm, LoginForm
 from core.models import User
-from scheduling.models import Project
+from scheduling.models import Project, ProjectMember
 from utils.base_views import AjaxFormView
 
 
@@ -19,7 +19,7 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data()
-        context['projects'] = Project.objects.all()
+
         return context
 
 
@@ -118,3 +118,9 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data()
+        memberships = ProjectMember.objects.get_user_projects_ids(user=self.request.user)
+        context['projects'] = Project.objects.filter(id__in=memberships)
+        return context

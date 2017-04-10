@@ -8,26 +8,22 @@
             {% csrf_token %}
             {% for field in form %}
                 <div class="form-group row">
-                    {{ field.label_tag }}
+                    <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
                     <div class="col-3">
                         {{ field }}
+                        <div class="form-{{ field.name }}-error form-control-feedback"></div>
                     </div>
                     {% if field.help_text %}
                         <p class="help">{{ field.help_text|safe }}</p>
                     {% endif %}
                 </div>
-                <br>
             {% endfor %}
             <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
+        <h6 class="js-reg-success hidden">Регистрация прошла успешно, на укзанный адрес отправлено письмо с активацией</h6>
     </div>
-    <script>
-        $('#js-reg-form').submit(function (event) {
-            event.preventDefault();
-            $.post($(this).attr('action'), $(this).serialize())
-                .done(function (response) {
-                    console.log(response); if (response.status === 'OK') { location.replace(response.success_url); }
-                }).fail(function (xhr, responseText) {});
-        });
-    </script>
+{% endblock %}
+
+{% block body_js %}
+    <script src="{% static 'core/js/register.js' %}"></script>
 {% endblock %}

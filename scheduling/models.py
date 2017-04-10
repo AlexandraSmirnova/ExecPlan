@@ -19,6 +19,14 @@ class Project(DefaultModel):
         return self.name
 
 
+class ProjectMemberManager(models.Manager):
+    def get_user_projects_ids(self, user):
+        return self.filter(user=user, is_active=True).values_list('project', flat=True)
+
+    def check_membership(self, user, project):
+        return self.filter(user=user, project=project, is_active=True).first()
+
+
 class ProjectMember(DefaultModel):
     class Meta:
         verbose_name = 'Участник проекта'
@@ -28,6 +36,8 @@ class ProjectMember(DefaultModel):
     project = models.ForeignKey(Project, verbose_name='проект')
     position = models.CharField(verbose_name='должность', max_length=128)
     is_project_admin = models.BooleanField(verbose_name='администратор проекта?', default=False)
+
+    objects = ProjectMemberManager()
 
     def __unicode__(self):
         return '{0} (проект {1})'.format(self.user, self.project)

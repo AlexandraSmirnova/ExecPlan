@@ -16,6 +16,12 @@ class RegisterForm(forms.ModelForm):
         model = User
         fields = ('email', 'first_name', 'last_name', 'password')
 
+    def __init__(self, *args, **kwargs):
+        super(RegisterForm, self).__init__(*args, **kwargs)
+        for key, field in self.fields.items():
+            class_name = 'form-control'
+            field.widget.attrs.update({'class': class_name})
+
     def clean(self):
         cleaned_data = super(RegisterForm, self).clean()
         password = cleaned_data.get('password')

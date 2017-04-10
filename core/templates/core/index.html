@@ -2,11 +2,6 @@
 
 {% block content %}
     <div class="container">
-        {% if projects %}
-            <h2>Выберите проект:</h2>
-            {% for project in projects %}
-                <div><a href="{% url 'schedule:project' project.id %}">{{ project.name }}</a></div>
-            {% endfor %}
-        {% endif %}
+        <h1>Добро пожаловать!</h1>
     </div>
 {% endblock %}

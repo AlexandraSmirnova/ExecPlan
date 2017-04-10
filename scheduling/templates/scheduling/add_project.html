@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <h3>Новый проект</h3>
+        <form id="js-add-project-form" class="form-horizontal" action='{% url 'schedule:add_project' %}' method="post">
+            {% csrf_token %}
+            <div class="form-group row">
+                <label for="id_name" class="col-2 col-form-label">Введите название</label>
+                <div class="col-sm-3">
+                    <input type="name" class="form-control" id="id_name" name="name">
+                    <div class="form-name-error form-control-feedback"></div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body_js %}
+    <script src="{% static 'scheduling/js/add_project.js' %}"></script>
+{% endblock %}
