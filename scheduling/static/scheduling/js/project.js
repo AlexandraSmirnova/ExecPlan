@@ -60,11 +60,6 @@ $(document).ready(function () {
                     },
                     text: 'durations'
                 },
-                labels: {
-                    style: {
-                        color: '#fff'
-                    }
-                }
             },
 
             plotOptions: {
@@ -105,11 +100,15 @@ $(document).ready(function () {
                         color: '#000'
                     },
                     text: 'durations'
-                },
-                labels: {
+                }
+            },
+
+            xAxis: {
+                title: {
                     style: {
-                        color: '#fff'
-                    }
+                        color: '#000'
+                    },
+                    text: 'iterations'
                 }
             },
 
