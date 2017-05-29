@@ -80,14 +80,14 @@ class ScheduleOperators(object):
                 break
         return valid
 
-    def predecessors_included(self, chromosome, gen):
-        gen_predecessors = self.predecessors[gen]
+    def predecessors_included(self, chromosome, gen_id):
+        predecessors = self.predecessors[gen_id]
         result = True
-        if not gen_predecessors:
+        if not predecessors:
             return result
 
-        for pred in gen_predecessors:
-            if pred not in chromosome:
+        for pr in predecessors:
+            if pr not in chromosome:
                 result = False
                 break
         return result

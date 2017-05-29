@@ -1,3 +1,4 @@
+import time
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse, HttpResponseBadRequest
@@ -69,7 +70,10 @@ class GaView(FormView):
         operators = ScheduleOperators(task_objects=new_tasks)
         gs = GeneticAlgorithmSchedule(probability_crossover=probability_crossover, population_size=population_size,
                                       limit=limit, operators=operators)
+        t_start = time.time()
         statistic = gs.run()
+        t_end = time.time()
+        print t_end - t_start
         return JsonResponse({'status': 'OK', 'statistic': statistic})
 
     def form_invalid(self, form):
@@ -81,6 +85,7 @@ class BranchAndBoundView(View):
     project_id = None
 
     def post(self, request, *args, **kwargs):
+        self.project_id = request.POST.get('id', None)
         is_member = ProjectMember.objects.check_membership(request.user, self.project_id)
         if not self.project_id or not is_member:
             return HttpResponseBadRequest()
@@ -90,6 +95,9 @@ class BranchAndBoundView(View):
             new_tasks.append(task.as_dict())
 
         operators = ScheduleOperators(task_objects=new_tasks)
-        algorithm = BranchAndBoundAlgorithm( operators=operators)
+        algorithm = BranchAndBoundAlgorithm(operators=operators)
+        t_start = time.time()
         statistic = algorithm.run()
+        t_end = time.time()
+        print t_end - t_start
         return JsonResponse({'status': 'OK', 'statistic': statistic})
