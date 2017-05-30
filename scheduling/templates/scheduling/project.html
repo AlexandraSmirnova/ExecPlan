@@ -1,6 +1,10 @@
 {% extends 'core/base.html' %}
 {% load static %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% static 'core/js/libs/jsgantt/jsgantt.css' %}">
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <h3>Проект: {{ project.name }}</h3>
@@ -36,13 +40,17 @@
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ project.id }}">
             <a href="#" class="js-submit-bb">Метод ветвей и границ</a>
-{#                    <input type="submit" value="Метод ветвей и границ">#}
         </form>
         <div class="statistic hidden"></div>
+        <div id="GanttChartDIV" class="gantt hidden"></div>
     </div>
 {% endblock %}
 
 {% block body_js %}
     <script src="{% static 'core/js/libs/highcharts.js' %}"></script>
     <script src="{% static 'scheduling/js/project.js' %}"></script>
+    <script src="{% static 'core/js/libs/jsgantt/jsgantt.js' %}"></script>
+    <script>
+        var g = new JSGantt.GanttChart('g', document.getElementById('GanttChartDIV'), 'day');
+    </script>
 {% endblock %}

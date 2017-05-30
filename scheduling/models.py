@@ -14,6 +14,7 @@ class Project(DefaultModel):
 
     name = models.CharField(verbose_name='название', max_length=255)
     author = models.ForeignKey(User, verbose_name='автор')
+    start_date = models.DateTimeField(verbose_name='дата начала', default=timezone.now)
 
     def __unicode__(self):
         return self.name
@@ -59,11 +60,9 @@ class Task(DefaultModel):
     project = models.ForeignKey(Project, verbose_name='проект', related_name='task_project')
     executor = models.ForeignKey(User, verbose_name='исполнитель', related_name='task_executor')
 
-    start_date = models.DateField(verbose_name='дата начала', default=timezone.now)
-    end_date = models.DateField(verbose_name='дата окончания', default=timezone.now)
+    start_date = models.DateTimeField(verbose_name='дата начала', default=timezone.now)
+    end_date = models.DateTimeField(verbose_name='дата окончания', default=timezone.now)
     duration = models.FloatField(verbose_name='длительность', help_text='в часах')
-
-    # predecessors = models.OneToManyField('self', verbose_name='предшественники', blank=True)
 
     objects = TaskManager()
 

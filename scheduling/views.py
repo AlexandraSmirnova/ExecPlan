@@ -85,7 +85,7 @@ class BranchAndBoundView(View):
     project_id = None
 
     def post(self, request, *args, **kwargs):
-        self.project_id = request.POST.get('id', None)
+        self.project_id = int(request.POST.get('id', None))
         is_member = ProjectMember.objects.check_membership(request.user, self.project_id)
         if not self.project_id or not is_member:
             return HttpResponseBadRequest()

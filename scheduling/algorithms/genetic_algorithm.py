@@ -2,13 +2,16 @@
 import random
 import copy
 
+from scheduling.algorithms.helpers import get_dict_for_gantt
+
 
 class GeneticAlgorithm(object):
-    def __init__(self, probability_crossover=0.8, population_size=20, limit=200):
+    def __init__(self, probability_crossover=0.8, population_size=20, limit=200, operators=None):
         self.probability_crossover = probability_crossover
         self.population_size = population_size
         self.counter = 0
         self.limit = limit
+        self.operators = operators
 
     def run(self):
         population = self.create_initial()
@@ -19,6 +22,8 @@ class GeneticAlgorithm(object):
             statistic['best_fit'].append(best)
             statistic['ave_fit'].append(ave)
             if self.check_end(fits):
+                best_shedules = [item[1] for item in fits if item[0] == best]
+                statistic['data_dict'] = get_dict_for_gantt(self.operators.decode_chromosome(best_shedules[0]))
                 break
             population = self.next(fits)
         return statistic
@@ -31,7 +36,7 @@ class GeneticAlgorithm(object):
             parents = parents_generator.next()
             rand = random.random()
             cross = rand < self.probability_crossover
-            child = self.crossover(parents) if cross else self.mutation(parents[0])
+            child = self.crossover2(parents) if cross else self.mutation(parents[0])
             nexts.append(child)
         return nexts
 
@@ -53,6 +58,9 @@ class GeneticAlgorithm(object):
     def crossover(self, parents):
         return parents
 
+    def crossover2(self, parents):
+        return parents
+
     def mutation(self, chromosome):
         return chromosome
 
@@ -60,7 +68,6 @@ class GeneticAlgorithm(object):
         return True
 
     def fitness_scaling(self, fits):
-        # return sorted(fits, key=lambda x: x[0])
         return self.rank_scaling(fits)
 
     @staticmethod
@@ -101,10 +108,10 @@ class GeneticAlgorithm(object):
 
 class GeneticAlgorithmSchedule(GeneticAlgorithm):
     def __init__(self, probability_crossover=0.8, population_size=30, limit=200, operators=None):
-        self.operators = operators
         self.best_fits = []
         self.ave_fits = []
-        super(GeneticAlgorithmSchedule, self).__init__(probability_crossover, population_size, limit)
+        super(GeneticAlgorithmSchedule, self).__init__(probability_crossover, population_size,
+                                                       limit, operators)
 
     def create_initial(self):
         population = []
@@ -144,6 +151,22 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
                 parents[0], parents[1] = parents[1], parents[0]
             else:
                 i += 1
+        return child
+
+    def crossover2(self, parents):
+        half = self.operators.task_count / 2
+        child = parents[0][:half]
+        i = half - 1
+        current_parent = parents[1]
+        search_index = current_parent.index(child[-1])
+        while i < self.operators.task_count:
+            for j in range(search_index, search_index + self.operators.task_count):
+                new_gen = current_parent[j % self.operators.task_count]
+                if self.check_gen(child, new_gen):
+                    child.append(new_gen)
+                    search_index = current_parent.index(new_gen)
+                    break
+            i += 1
         return child
 
     def mutation(self, parent):
