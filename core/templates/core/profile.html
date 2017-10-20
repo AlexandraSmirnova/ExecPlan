@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-10">
+                {% if projects %}
+                    <h2>Выберите проект:</h2>
+                    {% for project in projects %}
+                        <div><a href="{% url 'schedule:project' project.id %}">{{ project.name }}</a></div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="col-2">
+                <a href="{% url 'schedule:add_project' %}" class="btn btn-default">Добавить новый</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
