@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
@@ -63,6 +64,7 @@ class GaView(FormView):
         new_tasks = []
         for task in tasks:
             new_tasks.append(task.as_dict())
+        # ToDo: добавить ошибку, если задач < 5
 
         probability_crossover = form.cleaned_data.get('probability_crossover')
         population_size = form.cleaned_data.get('population_size')
