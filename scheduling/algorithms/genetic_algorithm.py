@@ -2,8 +2,6 @@
 import random
 import copy
 
-from scheduling.algorithms.helpers import get_dict_for_gantt
-
 
 class GeneticAlgorithm(object):
     def __init__(self, probability_crossover=0.8, population_size=20, limit=200, operators=None):
@@ -14,18 +12,24 @@ class GeneticAlgorithm(object):
         self.operators = operators
 
     def run(self):
+        from scheduling.algorithms.helpers import prepare_data_for_gantt
+
         population = self.create_initial()
-        statistic = {'best_fit': [], 'ave_fit': []}
+        statistic = {}
 
         while True:
             fits = [(self.fitness(ch),  ch) for ch in population]
-            best_fit, ave_fit = self.get_statistic(fits)
-            statistic['best_fit'].append(best_fit)
-            statistic['ave_fit'].append(ave_fit)
+            statistic_item = self.get_statistic(fits)
+
+            for key, value in statistic_item.items():
+                if key not in statistic:
+                    statistic[key] = []
+                statistic[key].append(value)
 
             if self.check_end(fits):
-                best_shedules = [item[1] for item in fits if item[0] == best_fit]
-                statistic['data_dict'] = get_dict_for_gantt(self.operators.decode_chromosome(best_shedules[0]))
+                best_fit = statistic_item['best_fit'] if 'best_fit' in statistic else None
+                best_schedules = [item[1] for item in fits if item[0] == best_fit]
+                statistic['data_dict'] = prepare_data_for_gantt(self.operators.decode_chromosome(best_schedules[0]))
                 break
 
             population = self.next(fits)
@@ -113,18 +117,15 @@ class GeneticAlgorithm(object):
 
         return parent
 
-    @staticmethod
-    def get_statistic(fits):
+    def get_statistic(self, fits):
         best_fit = min(fits)[0]
         ave_fit = sum([x[0] for x in fits]) / len(fits)
 
-        return best_fit, ave_fit
+        return {'best_fit': best_fit, 'ave_fit': ave_fit}
 
 
 class GeneticAlgorithmSchedule(GeneticAlgorithm):
     def __init__(self, probability_crossover=0.8, population_size=30, limit=200, operators=None):
-        self.best_fits = []
-        self.ave_fits = []
         super(GeneticAlgorithmSchedule, self).__init__(probability_crossover, population_size,
                                                        limit, operators)
 
@@ -193,7 +194,6 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
                     search_index = current_parent.index(new_gen)
                     break
 
-
         return child
 
     def mutation(self, parent):
@@ -215,3 +215,12 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
     def check_end(self, fits):
         self.counter += 1
         return self.counter >= self.limit
+
+    def get_statistic(self, fits):
+        # durations = [self.operators.get_schedule_duration(x[1]) for x in fits]
+        return {
+            'best_fit': min(fits)[0],
+            'ave_fit': sum([x[0] for x in fits]) / len(fits),
+            # 'best_time': min(durations),
+            # 'ave_time': sum(durations)/len(fits)
+        }

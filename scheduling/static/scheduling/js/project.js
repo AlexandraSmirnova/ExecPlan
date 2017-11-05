@@ -33,7 +33,7 @@ $(document).ready(function () {
         $.post($(this).attr('action'), $(this).serialize())
             .done(function (response) {
                 $('.statistic').show();
-                init_statistic_branch_bounds(response.statistic.best);
+                init_statistic_branch_bounds(response.statistic);
                 init_gantt(response.statistic.data_dict);
                 $('.gantt').show();
             }).fail(function (xhr, responseText) {
@@ -41,10 +41,6 @@ $(document).ready(function () {
     });
 
     function init_statistic_ga(data) {
-        var bestValues = data.best_fit;
-        var aveValues = data.ave_fit;
-
-
         $('.statistic').highcharts({
             title: {
                 style: {
@@ -76,10 +72,10 @@ $(document).ready(function () {
             },
             series: [{
                 name: 'Best Fitness',
-                data: bestValues
+                data: data.best_fit
             }, {
                 name: 'Average Fitness',
-                data: aveValues
+                data: data.ave_fit
             }]
         });
     }
@@ -126,7 +122,7 @@ $(document).ready(function () {
             },
             series: [{
                 name: 'Best Fitness',
-                data: data
+                data: data.best_fit
             }]
         });
     };
