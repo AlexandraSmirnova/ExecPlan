@@ -11,11 +11,15 @@ $(document).ready(function () {
         $('.branch-and-bound-algorithm-form').submit();
     });
 
+    $('.js-submit-ph').click( function (event) {
+        event.preventDefault();
+        $('.heuristic-form').submit();
+    });
+
     $('.genetic-algorithm-form').submit(function (event) {
         event.preventDefault();
         $.post($(this).attr('action'), $(this).serialize())
             .done(function (response) {
-                console.log(response);
                 if (response.status === 'OK') {
                     var statistic = response.statistic;
                     $('.statistic').show();
@@ -33,18 +37,25 @@ $(document).ready(function () {
         $.post($(this).attr('action'), $(this).serialize())
             .done(function (response) {
                 $('.statistic').show();
-                init_statistic_branch_bounds(response.statistic.best);
+                init_statistic_branch_bounds(response.statistic);
                 init_gantt(response.statistic.data_dict);
                 $('.gantt').show();
             }).fail(function (xhr, responseText) {
         });
     });
 
+    $('.heuristic-form').submit(function (event) {
+        event.preventDefault();
+        $.post($(this).attr('action'), $(this).serialize())
+            .done(function (response) {
+                $('.heuristic-form').append('<div>Best Fit: '+ response.statistic.best_fit + '</div>');
+                init_gantt(response.statistic.data_dict);
+            $('.gantt').show();
+            }).fail(function (xhr, responseText) {
+        });
+    });
+
     function init_statistic_ga(data) {
-        var bestValues = data.best_fit;
-        var aveValues = data.ave_fit;
-
-
         $('.statistic').highcharts({
             title: {
                 style: {
@@ -76,10 +87,10 @@ $(document).ready(function () {
             },
             series: [{
                 name: 'Best Fitness',
-                data: bestValues
+                data: data.best_fit
             }, {
                 name: 'Average Fitness',
-                data: aveValues
+                data: data.ave_fit
             }]
         });
     }
@@ -126,13 +137,12 @@ $(document).ready(function () {
             },
             series: [{
                 name: 'Best Fitness',
-                data: data
+                data: data.best_fit
             }]
         });
     };
 
     function init_gantt(schedule) {
-
         g.setShowRes(1); // Show/Hide Responsible (0/1)
         g.setShowDur(1); // Show/Hide Duration (0/1)
         g.setShowComp(0); // Show/Hide % Complete(0/1)
