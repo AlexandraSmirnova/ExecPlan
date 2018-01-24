@@ -1,47 +1,63 @@
 # coding=utf-8
 import copy
+import random
 import numpy as np
 from datetime import timedelta, datetime
-
-from core.models import User
 from scheduling.models import Task, Project
+from utils.decorators import memoize
 
 
 class ScheduleOperators(object):
+    FINE_FOR_DELAY = 100
+
     def __init__(self, task_objects=None):
         self.task_objects = task_objects
         self.task_count = len(task_objects)
         self.predecessors = []
 
         id_indexer = dict((p['id'], i) for i, p in enumerate(task_objects))
+
         for task in task_objects:
-            preds = []
-            for pred in task['predecessors']:
-                id = id_indexer.get(pred)
-                preds.append(id)
+            preds = [id_indexer.get(pred) for pred in task['predecessors']]
             self.predecessors.append(preds)
 
+    @memoize
     def fitness(self, chromosome):
         decoded = self.decode_chromosome(chromosome)
-        return max(x['end_time'] for x in decoded)
+        costs = []
+        delayed_days = 0
 
+        for x in decoded:
+            costs.append(x['end_time'])
+            if x['s_deadline_time'] and x['end_time'] > x['s_deadline_time']:
+                delayed_days += int((x['end_time'] - x['s_deadline_time']) / 9) + 1
+
+        return max(costs) + delayed_days * self.FINE_FOR_DELAY
+
+    def get_schedule_duration(self, chromosome):
+        return max(x['end_time'] for x in self.decode_chromosome(chromosome))
+
+    @memoize
     def decode_chromosome(self, chromosome):
-        max_time = 1
+        max_time = 1.0
         decoded_ch = copy.deepcopy(self.task_objects)
 
         for gen_id in chromosome:
-            duration = decoded_ch[gen_id]['duration']
+            task = decoded_ch[gen_id]
+            duration = task['duration']
 
             if not gen_id == chromosome[0]:
                 executor_check = True
                 preds_ended = True
+
                 while executor_check or not preds_ended:
-                    executor_check, time1 = self.is_executor_busy(decoded_ch, decoded_ch[gen_id]['executor_id'],
+                    executor_check, time1 = self.is_executor_busy(decoded_ch, task['executor_id'],
                                                                   max_time, max_time + duration)
                     preds_ended, time2 = self.check_predecessors_end(decoded_ch, gen_id, max_time)
                     max_time = max(time1, time2)
-            decoded_ch[gen_id]['start_time'] = max_time
-            decoded_ch[gen_id]['end_time'] = max_time + duration
+
+            task['start_time'] = max_time
+            task['end_time'] = max_time + duration
 
         return decoded_ch
 
@@ -56,12 +72,13 @@ class ScheduleOperators(object):
                 result = True
                 time_till = task['end_time'] + 1
                 break
+
         return result, time_till
 
     def check_predecessors_end(self, decoded_chromosome, gen_id, start_time):
         preds = self.predecessors[gen_id]
         result = True
-        till_time = 1
+        till_time = 1.0
 
         if not preds:
             return result, till_time
@@ -69,56 +86,76 @@ class ScheduleOperators(object):
         for pred in preds:
             if decoded_chromosome[pred]['end_time'] >= start_time:
                 result = False
-                till_time = decoded_chromosome[pred]['end_time'] + 1
+                till_time = decoded_chromosome[pred]['end_time'] + 1.0
                 break
+
         return result, till_time
 
-    def check_chromosome(self, chromosome):
-        valid = True
-        for j in range(len(chromosome)):
-            if not self.predecessors_included(chromosome[:j], chromosome[j]):
-                valid = False
-                break
-        return valid
+    @memoize
+    def check_deadline(self, chromosome):
+        decoded = self.decode_chromosome(chromosome)
 
+        for x in decoded:
+            if x['h_deadline_time'] and x['end_time'] > x['h_deadline_time']:
+                # print x['id']
+                return False
+
+        return True
+
+    @memoize
+    def check_chromosome(self, chromosome):
+        for j in range(len(chromosome)):
+            valid, pred = self.predecessors_included(chromosome[:j], chromosome[j])
+            if not valid:
+                return False, j, chromosome.index(pred)
+
+        if not self.check_deadline(chromosome):
+            return False, 0, None
+
+        return True, 0, None
+
+    @memoize
     def predecessors_included(self, chromosome, gen_id):
         predecessors = self.predecessors[gen_id]
-        result = True
-        if not predecessors:
-            return result
 
         for pr in predecessors:
             if pr not in chromosome:
-                result = False
-                break
-        return result
+                return False, pr
+
+        return True, None
 
     def create_individ(self):
         i = 0
+        chromosome = list(np.random.permutation([x for x in range(0, self.task_count)]))
         while i < 300000:
-            chromosome = list(np.random.permutation([x for x in range(0, self.task_count)]))
-            if self.check_chromosome(chromosome):
+            valid, index, pred_index = self.check_chromosome(chromosome)
+            if valid:
                 return chromosome
+            changed_part = chromosome[index:]
+            random.shuffle(changed_part)
+            chromosome = chromosome[:index] + changed_part
             i += 1
+
         raise Exception(u'Не удалось создать расписание')
 
 
-def get_dict_for_gantt(schedule):
+def prepare_data_for_gantt(schedule):
+    from core.models import User
+
     data = list()
 
     for item in schedule:
         task = Task.objects.filter(id=item.get('id')).first()
-        if not task:
-            return data
 
-        task_dict = {
+        data.append({
             'id_num': task.id,
             'name': task.name,
             'executor_name': User.objects.filter(id=item.get('executor_id', 1)).first().get_full_name(),
             'predecessors': ", ".join([str(x) for x in item.get('predecessors')])
-        }
-        data.append(task_dict)
+        })
+
     get_gantt_dates(data, schedule)
+
     return data
 
 
@@ -132,7 +169,7 @@ def get_gantt_dates(tasks_list, schedule):
         item = schedule[i]
         st_hours = item['start_time']
         ed_hours = item['end_time']
-        s = current_date + timedelta(hours=int(st_hours / 9) * 24) + timedelta(hours=st_hours  % 9)
+        s = current_date + timedelta(hours=int(st_hours / 9) * 24) + timedelta(hours=st_hours % 9)
         e = current_date + timedelta(hours=int(ed_hours / 9) * 24) + timedelta(hours=ed_hours % 9)
 
         s = check_date(s, start_work, end_work)
@@ -141,6 +178,7 @@ def get_gantt_dates(tasks_list, schedule):
             'start_time': datetime.strftime(s, '%m/%d/%Y %H:%M'),
             'end_time': datetime.strftime(e, '%m/%d/%Y %H:%M'),
         })
+
     return tasks_list
 
 

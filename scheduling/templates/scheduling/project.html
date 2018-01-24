@@ -41,6 +41,12 @@
             <input type="hidden" name="id" value="{{ project.id }}">
             <a href="#" class="js-submit-bb">Метод ветвей и границ</a>
         </form>
+
+        <form class="heuristic-form" action="{% url 'schedule:heuristic' %}" method='post'>
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ project.id }}">
+            <a href="#" class="js-submit-ph">Эвристика приоритетов</a>
+        </form>
         <div class="statistic hidden"></div>
         <div id="GanttChartDIV" class="gantt hidden"></div>
     </div>
