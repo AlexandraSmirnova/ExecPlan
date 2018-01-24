@@ -4,6 +4,7 @@ import random
 import numpy as np
 from datetime import timedelta, datetime
 from scheduling.models import Task, Project
+from utils.decorators import memoize
 
 
 class ScheduleOperators(object):
@@ -20,40 +21,43 @@ class ScheduleOperators(object):
             preds = [id_indexer.get(pred) for pred in task['predecessors']]
             self.predecessors.append(preds)
 
+    @memoize
     def fitness(self, chromosome):
         decoded = self.decode_chromosome(chromosome)
         costs = []
-        delayed_count = 0
+        delayed_days = 0
 
         for x in decoded:
             costs.append(x['end_time'])
-            if x['limit_time'] and x['end_time'] > x['limit_time']:
-               delayed_count += 1
+            if x['s_deadline_time'] and x['end_time'] > x['s_deadline_time']:
+                delayed_days += int((x['end_time'] - x['s_deadline_time']) / 9) + 1
 
-        return max(costs) + delayed_count * self.FINE_FOR_DELAY
+        return max(costs) + delayed_days * self.FINE_FOR_DELAY
 
     def get_schedule_duration(self, chromosome):
         return max(x['end_time'] for x in self.decode_chromosome(chromosome))
 
+    @memoize
     def decode_chromosome(self, chromosome):
         max_time = 1.0
         decoded_ch = copy.deepcopy(self.task_objects)
 
         for gen_id in chromosome:
-            duration = decoded_ch[gen_id]['duration']
+            task = decoded_ch[gen_id]
+            duration = task['duration']
 
             if not gen_id == chromosome[0]:
                 executor_check = True
                 preds_ended = True
 
                 while executor_check or not preds_ended:
-                    executor_check, time1 = self.is_executor_busy(decoded_ch, decoded_ch[gen_id]['executor_id'],
+                    executor_check, time1 = self.is_executor_busy(decoded_ch, task['executor_id'],
                                                                   max_time, max_time + duration)
                     preds_ended, time2 = self.check_predecessors_end(decoded_ch, gen_id, max_time)
                     max_time = max(time1, time2)
 
-            decoded_ch[gen_id]['start_time'] = max_time
-            decoded_ch[gen_id]['end_time'] = max_time + duration
+            task['start_time'] = max_time
+            task['end_time'] = max_time + duration
 
         return decoded_ch
 
@@ -87,27 +91,44 @@ class ScheduleOperators(object):
 
         return result, till_time
 
+    @memoize
+    def check_deadline(self, chromosome):
+        decoded = self.decode_chromosome(chromosome)
+
+        for x in decoded:
+            if x['h_deadline_time'] and x['end_time'] > x['h_deadline_time']:
+                # print x['id']
+                return False
+
+        return True
+
+    @memoize
     def check_chromosome(self, chromosome):
         for j in range(len(chromosome)):
-            if not self.predecessors_included(chromosome[:j], chromosome[j]):
-                return False, j
+            valid, pred = self.predecessors_included(chromosome[:j], chromosome[j])
+            if not valid:
+                return False, j, chromosome.index(pred)
 
-        return True, 0
+        if not self.check_deadline(chromosome):
+            return False, 0, None
 
+        return True, 0, None
+
+    @memoize
     def predecessors_included(self, chromosome, gen_id):
         predecessors = self.predecessors[gen_id]
 
         for pr in predecessors:
             if pr not in chromosome:
-                return False
+                return False, pr
 
-        return True
+        return True, None
 
     def create_individ(self):
         i = 0
         chromosome = list(np.random.permutation([x for x in range(0, self.task_count)]))
         while i < 300000:
-            valid, index = self.check_chromosome(chromosome)
+            valid, index, pred_index = self.check_chromosome(chromosome)
             if valid:
                 return chromosome
             changed_part = chromosome[index:]

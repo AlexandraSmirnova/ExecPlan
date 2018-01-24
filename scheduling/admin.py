@@ -45,7 +45,7 @@ class PredecessorsInline(TabularInline):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'project', 'author', 'executor', 'limit_date', 'is_active')
+    list_display = ('name', 'project', 'executor', 'soft_deadline', 'hard_deadline', 'is_active')
     list_filter = ('is_active', 'project')
 
     search_fields = ('name', 'author', 'description')

@@ -11,11 +11,15 @@ $(document).ready(function () {
         $('.branch-and-bound-algorithm-form').submit();
     });
 
+    $('.js-submit-ph').click( function (event) {
+        event.preventDefault();
+        $('.heuristic-form').submit();
+    });
+
     $('.genetic-algorithm-form').submit(function (event) {
         event.preventDefault();
         $.post($(this).attr('action'), $(this).serialize())
             .done(function (response) {
-                console.log(response);
                 if (response.status === 'OK') {
                     var statistic = response.statistic;
                     $('.statistic').show();
@@ -36,6 +40,17 @@ $(document).ready(function () {
                 init_statistic_branch_bounds(response.statistic);
                 init_gantt(response.statistic.data_dict);
                 $('.gantt').show();
+            }).fail(function (xhr, responseText) {
+        });
+    });
+
+    $('.heuristic-form').submit(function (event) {
+        event.preventDefault();
+        $.post($(this).attr('action'), $(this).serialize())
+            .done(function (response) {
+                $('.heuristic-form').append('<div>Best Fit: '+ response.statistic.best_fit + '</div>');
+                init_gantt(response.statistic.data_dict);
+            $('.gantt').show();
             }).fail(function (xhr, responseText) {
         });
     });
@@ -128,7 +143,6 @@ $(document).ready(function () {
     };
 
     function init_gantt(schedule) {
-
         g.setShowRes(1); // Show/Hide Responsible (0/1)
         g.setShowDur(1); // Show/Hide Duration (0/1)
         g.setShowComp(0); // Show/Hide % Complete(0/1)

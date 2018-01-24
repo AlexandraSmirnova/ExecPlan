@@ -18,7 +18,6 @@ class BranchAndBoundAlgorithm(object):
 
         self.statistic['best_fit'].append(self.best_fit)
         self.branch([])
-        # self.branch2()
         self.statistic['data_dict'] = prepare_data_for_gantt(self.operators.decode_chromosome(self.individ))
         return self.statistic
 
@@ -28,7 +27,7 @@ class BranchAndBoundAlgorithm(object):
 
         for solution in solutions:
             new_path = path + list([solution])
-            if not self.operators.predecessors_included(new_path, solution):
+            if not self.operators.predecessors_included(new_path, solution) or not self.operators.check_deadline(new_path):
                 continue
 
             fitness = self.operators.fitness(new_path)

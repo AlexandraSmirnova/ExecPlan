@@ -62,7 +62,8 @@ class Task(DefaultModel):
 
     start_date = models.DateTimeField(verbose_name='дата начала', default=timezone.now)
     end_date = models.DateTimeField(verbose_name='дата окончания', default=timezone.now)
-    limit_date = models.DateTimeField(verbose_name='крайний срок', blank=True, null=True)
+    soft_deadline = models.DateTimeField(verbose_name='крайний срок (мягкий)', blank=True, null=True)
+    hard_deadline = models.DateTimeField(verbose_name='крайний срок (жесткий)', blank=True, null=True)
     duration = models.FloatField(verbose_name='длительность', help_text='в часах')
 
     objects = TaskManager()
@@ -77,7 +78,8 @@ class Task(DefaultModel):
             'duration': self.duration,
             'start_time': None,
             'end_time': None,
-            'limit_time': (self.limit_date - self.project.start_date).days * 9 if self.limit_date else 0,
+            's_deadline_time': (self.soft_deadline - self.project.start_date).days * 9 if self.soft_deadline else 0,
+            'h_deadline_time': (self.hard_deadline - self.project.start_date).days * 9 if self.hard_deadline else 0,
             'predecessors': list(Predecessor.objects.filter(task=self).values_list('predecessor_id', flat=True))
         }
 

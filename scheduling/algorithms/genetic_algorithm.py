@@ -29,7 +29,10 @@ class GeneticAlgorithm(object):
             if self.check_end(fits):
                 best_fit = statistic_item['best_fit'] if 'best_fit' in statistic else None
                 best_schedules = [item[1] for item in fits if item[0] == best_fit]
-                statistic['data_dict'] = prepare_data_for_gantt(self.operators.decode_chromosome(best_schedules[0]))
+                decoded_best_schedule = self.operators.decode_chromosome(best_schedules[0])
+                statistic['data_dict'] = prepare_data_for_gantt(decoded_best_schedule)
+                best_time = max([x['end_time'] for x in decoded_best_schedule])
+                statistic['delayed_days'] = (best_fit - best_time) / self.operators.FINE_FOR_DELAY
                 break
 
             population = self.next(fits)
@@ -120,7 +123,6 @@ class GeneticAlgorithm(object):
     def get_statistic(self, fits):
         best_fit = min(fits)[0]
         ave_fit = sum([x[0] for x in fits]) / len(fits)
-
         return {'best_fit': best_fit, 'ave_fit': ave_fit}
 
 
@@ -218,9 +220,13 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
 
     def get_statistic(self, fits):
         # durations = [self.operators.get_schedule_duration(x[1]) for x in fits]
+        # cache_calls = len(fits) - self.operators.fitness_count
+        self.operators.fitness_count = 0
         return {
             'best_fit': min(fits)[0],
             'ave_fit': sum([x[0] for x in fits]) / len(fits),
+            # 'cache_calls': cache_calls
             # 'best_time': min(durations),
             # 'ave_time': sum(durations)/len(fits)
         }
+
