@@ -93,6 +93,11 @@ class BranchAndBoundView(View):
         if not self.project_id or not is_member:
             return HttpResponseBadRequest()
         tasks = Task.objects.get_project_tasks(self.project_id)
+        if tasks.length > 12:
+            return JsonResponse({
+                'status': 'ERROR',
+                'message': 'Данный метод не может обработать проект с количеством задач > 12'
+            })
         new_tasks = []
         for task in tasks:
             new_tasks.append(task.as_dict())
@@ -103,7 +108,11 @@ class BranchAndBoundView(View):
         statistic = algorithm.run()
         t_end = time.time()
         print t_end - t_start
-        return JsonResponse({'status': 'OK', 'statistic': statistic})
+        return JsonResponse({
+            'status': 'OK',
+            'statistic': statistic,
+            'show_statistic': True
+        })
 
 
 class PriorityHeuristicView(View):
