@@ -14,9 +14,12 @@ class Command(BaseCommand):
     LIMIT = 200
     LAUNCH_COUNT = 5
 
+    def add_arguments(self, parser):
+        parser.add_argument('p_id', default=1, type=int)
 
     def handle(self, *args, **options):
-        tasks = Task.objects.get_project_tasks(1)
+        project_id = options['p_id']
+        tasks = Task.objects.get_project_tasks(project_id)
         new_tasks = []
         for task in tasks:
             new_tasks.append(task.as_dict())
@@ -36,11 +39,11 @@ class Command(BaseCommand):
             print t_end - t_start
             times.append(t_end - t_start)
             # print statistic
-            delayed_days += statistic['delayed_days']
+            # delayed_days += statistic['delayed_days']
             print 'best: {}'.format(statistic['best_fit'][-1])
-            print 'delayed days: {}'.format(statistic['delayed_days'])
+            # print 'delayed days: {}'.format(statistic['delayed_days'])
             # print 'ave: {}'.format(statistic['ave_fit'][-1])
             # print 'cache: {}'.format(sum(statistic['cache_calls'])/len(statistic['cache_calls']))
 
-        print delayed_days/self.LAUNCH_COUNT
+        # print delayed_days/self.LAUNCH_COUNT
         print sum(times)/self.LAUNCH_COUNT

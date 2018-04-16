@@ -2,7 +2,9 @@
 from __future__ import unicode_literals
 import random
 
+
 from datetime import timedelta
+
 from django.core.management import BaseCommand
 
 from scheduling.models import ProjectMember, Predecessor, Task, Project
@@ -82,7 +84,6 @@ class Command(BaseCommand):
 
         for i in range(pred_count):
             Predecessor.objects.create(task=task, predecessor=random.choice(self.available_tasks))
-
 
         return
 

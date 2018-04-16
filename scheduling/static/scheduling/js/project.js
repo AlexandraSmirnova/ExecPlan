@@ -6,16 +6,17 @@ $(document).ready(function () {
 
     $('.js-open-ga-form').click( function (event) {
         event.preventDefault();
-        $('.statistic, .gantt').hide();
+        $('.project-right-col > *:not(.genetic-algorithm-form)').hide();
         $('.genetic-algorithm-form').toggle();
     });
 
     $('.js-create-schedule').click( function (event) {
         event.preventDefault();
-        $('.statistic, .genetic-algorithm-form, .gantt').hide();
+        $('.project-right-col > *').hide();
         $('.create-schedule-form').attr('action', $(this).attr('data-url'));
         $('.create-schedule-form').submit();
     });
+
 
     $('.create-schedule-form').submit(function (event) {
         event.preventDefault();

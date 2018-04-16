@@ -24,11 +24,19 @@
                         <div class="methods-list__item js-create-schedule" data-url="{% url 'schedule:heuristic' %}">
                             Эвристика приоритетов
                         </div>
+
                     </div>
                 </form>
+                <hr>
+                <div class="prolect-menu">
+                    <a href="#" class="project-menu__item">Список задач</a>
+                </div>
             </div>
 
             <div class="project-right-col col-md-9">
+{#                <div class="project-right-col__page project-right-col__page_active">#}
+{#                    {% include 'scheduling/tasks_list.html' %}#}
+{#                </div>#}
                 <form class="genetic-algorithm-form hidden form-horizontal" action="{% url 'schedule:ga' %}" method='post'>
                     {% csrf_token %}
                     <input type="hidden" name="id" value="{{ project.id }}">

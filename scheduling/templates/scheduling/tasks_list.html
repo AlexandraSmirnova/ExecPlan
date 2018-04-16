@@ -1,0 +1,5 @@
+{% for task in project.task_project.all %}
+    {% if task.is_active %}
+        <div>{{ task.name }}</div>
+    {% endif %}
+{% endfor %}

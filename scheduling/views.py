@@ -28,6 +28,11 @@ class ProjectView(LoginRequiredMixin, DetailView):
         if not is_member:
             return HttpResponseBadRequest()
         return super(ProjectView, self).get(request, *args, **kwargs)
+#
+# class ProjectTasksView(LoginRequiredMixin, DetailView):
+#     model = Project
+#     context_object_name = 'project'
+#     pk_url_kwarg = 'project_id'
 
 
 class AddProjectView(LoginRequiredMixin, TemplateView, AjaxFormView):
@@ -93,7 +98,7 @@ class BranchAndBoundView(View):
         if not self.project_id or not is_member:
             return HttpResponseBadRequest()
         tasks = Task.objects.get_project_tasks(self.project_id)
-        if tasks.length > 12:
+        if len(tasks) > 12:
             return JsonResponse({
                 'status': 'ERROR',
                 'message': 'Данный метод не может обработать проект с количеством задач > 12'
