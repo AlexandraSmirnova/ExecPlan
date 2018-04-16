@@ -175,8 +175,8 @@ def get_gantt_dates(tasks_list, schedule):
         s = check_date(s, start_work, end_work)
         e = check_date(e, start_work, end_work)
         tasks_list[i].update({
-            'start_time': datetime.strftime(s, '%m/%d/%Y %H:%M'),
-            'end_time': datetime.strftime(e, '%m/%d/%Y %H:%M'),
+            'start_time': datetime.strftime(s, '%Y-%m-%d %H:%M'),
+            'end_time': datetime.strftime(e, '%Y-%m-%d %H:%M'),
         })
 
     return tasks_list
