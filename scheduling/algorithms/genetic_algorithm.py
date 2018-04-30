@@ -33,10 +33,12 @@ class GeneticAlgorithm(object):
                 statistic['data_dict'] = prepare_data_for_gantt(decoded_best_schedule)
                 best_time = max([x['end_time'] for x in decoded_best_schedule])
                 statistic['delayed_days'] = (best_fit - best_time) / self.operators.FINE_FOR_DELAY
+                # print decoded_best_schedule
+                # for i in range(len(decoded_best_schedule)):
+                #     print '{}  {}  {}'.format(i+2, decoded_best_schedule[i]['start_time'],  decoded_best_schedule[i]['duration'])
                 break
 
             population = self.next(fits)
-
         return statistic
 
     def next(self, fits):

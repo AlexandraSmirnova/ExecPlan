@@ -51,7 +51,7 @@ class ScheduleOperators(object):
                 preds_ended = True
 
                 while executor_check or not preds_ended:
-                    executor_check, time1 = self.is_executor_busy(decoded_ch, task['executor_id'],
+                    executor_check, time1 = self.is_executors_busy(decoded_ch, task['executors_ids'],
                                                                   max_time, max_time + duration)
                     preds_ended, time2 = self.check_predecessors_end(decoded_ch, gen_id, max_time)
                     max_time = max(time1, time2)
@@ -62,16 +62,15 @@ class ScheduleOperators(object):
         return decoded_ch
 
     @staticmethod
-    def is_executor_busy(decoded_chromosome, executor, start_time, end_time):
+    def is_executors_busy(decoded_chromosome, executors_ids, start_time, end_time):
         result = False
         time_till = start_time
-        tasks_list = filter(lambda x: x['executor_id'] == executor, decoded_chromosome)
-
-        for task in tasks_list:
-            if not (start_time > task['end_time'] or end_time < task['start_time']):
-                result = True
-                time_till = task['end_time'] + 1
-                break
+        # tasks_list = filter(lambda x: x['executor_id'] == executor, decoded_chromosome)
+        for executor_id in executors_ids:
+            tasks_list = filter(lambda x: executor_id in x['executors_ids'], decoded_chromosome)
+            for task in tasks_list:
+                if not (start_time > task['end_time'] or end_time < task['start_time']):
+                    return True, task['end_time'] + 1
 
         return result, time_till
 
@@ -150,7 +149,7 @@ def prepare_data_for_gantt(schedule):
         data.append({
             'id_num': task.id,
             'name': task.name,
-            'executor_name': User.objects.filter(id=item.get('executor_id', 1)).first().get_full_name(),
+            'executor_name': User.objects.filter(id=item.get('executors_ids')[0]).first().get_full_name(),
             'predecessors': ", ".join([str(x) for x in item.get('predecessors')])
         })
 

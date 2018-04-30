@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
-
+from core.models import User
 from scheduling.models import Project, Task, ProjectMember, Predecessor
 
 
@@ -19,10 +19,10 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(ProjectMember)
 class ProjectMemberAdmin(admin.ModelAdmin):
-    list_display = ('project', 'user', 'position', 'is_project_admin', 'is_active')
+    list_display = ('project', 'user', 'role', 'is_project_admin', 'is_active')
     list_filter = ('is_project_admin', 'is_active')
 
-    search_fields = ('project', 'user', 'position')
+    search_fields = ('project', 'user', 'role')
     ordering = ('project', 'user')
     list_editable = ('is_active',)
 
@@ -43,6 +43,10 @@ class PredecessorsInline(TabularInline):
         return super(TabularInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class ExecutorsInline(TabularInline):
+    model = Task.executors.through
+
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('name', 'project', 'executor', 'soft_deadline', 'hard_deadline', 'is_active')
@@ -53,4 +57,5 @@ class TaskAdmin(admin.ModelAdmin):
     list_editable = ('is_active', )
 
     readonly_fields = ('created', 'updated')
-    inlines = [PredecessorsInline]
+    exclude = ('executors',)
+    inlines = [PredecessorsInline, ExecutorsInline]

@@ -40,6 +40,7 @@ class PriorityHeuristic(object):
 
         fit = self.operators.fitness(chromosome)
         self.statistic['best_fit'] = fit
+        print fit
         self.statistic['data_dict'] = prepare_data_for_gantt(self.operators.decode_chromosome(chromosome))
         schedule_time = max(x['end_time'] for x in self.operators.decode_chromosome(chromosome))
         self.statistic['delayed_days'] = (fit - schedule_time) / self.operators.FINE_FOR_DELAY

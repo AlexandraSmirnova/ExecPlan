@@ -106,13 +106,14 @@ $(document).ready(function () {
         g.setShowDur(1); // Show/Hide Duration (0/1)
         g.setShowComp(0); // Show/Hide % Complete(0/1)
         g.setShowDeps(1);
+        g.setShowTaskInfoRes(1); // Show/hide resource in the task tooltip
         g.setCaptionType('Resource'); // Set to Show Caption (None,Caption,Resource,Duration,Complete)
         // Parameters (pID, pName, pStart, pEnd, pColor,   pLink, pMile, pRes,  pComp - 0, pGroup- 0, pParent - 0, pOpen 1, pDepend, pCaption, pNotes, pGantt)
 
         if( g ) {
             for( var s in schedule) {
                 var item = schedule[s];
-                g.AddTaskItem(new JSGantt.TaskItem(item.id_num, item.name,  item.start_time, item.end_time, 'gtaskred', '', 0, schedule[s].executor_name, 0, 0, 0, 1, item.predecessors, '', '', g));
+                g.AddTaskItem(new JSGantt.TaskItem(item.id_num, item.name,  item.start_time, item.end_time, 'gtaskred', '', 0, item.executor_name, 0, 0, 0, 1, item.predecessors, '', '', g));
             }
 
             g.Draw();
