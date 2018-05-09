@@ -52,7 +52,7 @@ class ExecutorsInline(TabularInline):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'project', 'duration', 'soft_deadline', 'hard_deadline', 'is_active')
+    list_display = ('name', 'get_project_url', 'duration', 'soft_deadline', 'hard_deadline', 'is_active')
     list_filter = ('is_active', 'project')
 
     search_fields = ('name', 'author', 'description')
@@ -62,3 +62,7 @@ class TaskAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'updated')
     exclude = ('executors',)
     inlines = [PredecessorsInline, ExecutorsInline]
+
+    def get_project_url(self, obj):
+        return '<a href="{}{}/change">{}</a>'.format('/ssadmin/scheduling/project/', obj.project.id, obj.project)
+    get_project_url.allow_tags = True
