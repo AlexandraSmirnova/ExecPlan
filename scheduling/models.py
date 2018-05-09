@@ -47,7 +47,7 @@ class ProjectMember(DefaultModel):
 
     user = models.ForeignKey(User, verbose_name='пользователь')
     project = models.ForeignKey(Project, verbose_name='проект')
-    role = models.CharField(verbose_name='роль', choices=ROLE_CHOICES, default=DEVELOPER, max_length=128)
+    role = models.IntegerField(verbose_name='роль', choices=ROLE_CHOICES, default=DEVELOPER)
     is_project_admin = models.BooleanField(verbose_name='администратор проекта?', default=False)
 
     objects = ProjectMemberManager()

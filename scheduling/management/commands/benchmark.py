@@ -1,3 +1,5 @@
+# coding=utf-8
+from __future__ import unicode_literals
 import time
 from django.core.management import BaseCommand
 

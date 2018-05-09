@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import random
 from datetime import timedelta
 from django.core.management import BaseCommand
-from scheduling.benchmarks.benchmark_j601_1 import durations, members_count, members_type, successors
+from scheduling.benchmarks.benchmark_j1201_1 import durations, members_count, members_type, successors
 from scheduling.models import ProjectMember, Predecessor, Task, Project
 from utils.string_utils import get_random_string
 

@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import unicode_literals
 import copy
 import random
 import numpy as np
@@ -135,7 +136,7 @@ class ScheduleOperators(object):
             chromosome = chromosome[:index] + changed_part
             i += 1
 
-        raise Exception(u'Не удалось создать расписание')
+        raise Exception('Не удалось создать расписание')
 
 
 def prepare_data_for_gantt(schedule):
