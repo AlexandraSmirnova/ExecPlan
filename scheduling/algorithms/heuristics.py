@@ -16,7 +16,6 @@ class PriorityHeuristic(object):
             x['s_deadline_time'] if x['s_deadline_time'] else 999999,
             x['duration']
         ))
-
         chromosome = []
         for item in sorted_tasks:
             index = [tasks.index(elem) for elem in tasks if elem['id'] == item['id']]
@@ -40,6 +39,7 @@ class PriorityHeuristic(object):
 
         fit = self.operators.fitness(chromosome)
         self.statistic['best_fit'] = fit
+        print fit
         self.statistic['data_dict'] = prepare_data_for_gantt(self.operators.decode_chromosome(chromosome))
         schedule_time = max(x['end_time'] for x in self.operators.decode_chromosome(chromosome))
         self.statistic['delayed_days'] = (fit - schedule_time) / self.operators.FINE_FOR_DELAY

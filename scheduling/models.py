@@ -29,13 +29,25 @@ class ProjectMemberManager(models.Manager):
 
 
 class ProjectMember(DefaultModel):
+    TESTER = 1
+    DEVELOPER = 2
+    DESIGNER = 3
+    MANAGER = 4
+
+    ROLE_CHOICES = (
+        (TESTER, 'Tester'),
+        (DEVELOPER, 'Developer'),
+        (DESIGNER, 'Designer'),
+        (MANAGER, 'Manager')
+    )
+
     class Meta:
         verbose_name = 'Участник проекта'
         verbose_name_plural = 'Участники проектов'
 
     user = models.ForeignKey(User, verbose_name='пользователь')
     project = models.ForeignKey(Project, verbose_name='проект')
-    position = models.CharField(verbose_name='должность', max_length=128)
+    role = models.IntegerField(verbose_name='роль', choices=ROLE_CHOICES, default=DEVELOPER)
     is_project_admin = models.BooleanField(verbose_name='администратор проекта?', default=False)
 
     objects = ProjectMemberManager()
@@ -58,7 +70,8 @@ class Task(DefaultModel):
     description = models.TextField(verbose_name='описание', blank=True, null=True)
     author = models.ForeignKey(User, verbose_name='автор', related_name='task_author')
     project = models.ForeignKey(Project, verbose_name='проект', related_name='task_project')
-    executor = models.ForeignKey(User, verbose_name='исполнитель', related_name='task_executor')
+    executor = models.ForeignKey(User, verbose_name='исполнитель', related_name='task_executor', blank=True, null=True)
+    executors = models.ManyToManyField(User, verbose_name='исполнители')
 
     start_date = models.DateTimeField(verbose_name='дата начала', default=timezone.now)
     end_date = models.DateTimeField(verbose_name='дата окончания', default=timezone.now)
@@ -74,7 +87,8 @@ class Task(DefaultModel):
     def as_dict(self):
         return {
             'id': self.id,
-            'executor_id': self.executor.id,
+            # 'executor_id': self.executor.id,
+            'executors_ids': [x.id for x in self.executors.all()],
             'duration': self.duration,
             'start_time': None,
             'end_time': None,

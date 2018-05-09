@@ -8,55 +8,74 @@
 {% block content %}
     <div class="container">
         <h3>Проект: {{ project.name }}</h3>
-        <div>Составить расписание:</div>
 
-        <a href="#" class="js-open-ga-form">Генетический алгоритм</a>
-        <form class="genetic-algorithm-form hidden form-horizontal" action="{% url 'schedule:ga' %}" method='post'>
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ project.id }}">
-            <div class="form-group row">
-                <label for="prob_cross" class="col-3 col-form-label">Соотношение кроссинговера к мутации</label>
-                <div class="col-sm-3">
-                    <input type="number" name="probability_crossover" id="prob_cross" class="form-control"
-                           min="0" max="1" step="0.1">
+        <div class="row">
+            <div class="project-left-col col-md-3">
+                <div>Составить расписание:</div>
+                <form class="create-schedule-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ project.id }}">
+                    <div class="methods-list">
+                        <div class="methods-list__item js-open-ga-form">Генетический алгоритм</div>
+                        <div class="methods-list__item js-create-schedule"
+                             data-url="{% url 'schedule:branch_and_bound' %}">
+                            Метод ветвей и границ
+                        </div>
+                        <div class="methods-list__item js-create-schedule" data-url="{% url 'schedule:heuristic' %}">
+                            Эвристика приоритетов
+                        </div>
+
+                    </div>
+                </form>
+                <hr>
+                <div class="prolect-menu">
+                    <a href="#" class="project-menu__item">Список задач</a>
                 </div>
             </div>
-            <div class="form-group row">
-                <label for="pop_size" class="col-3 col-form-label">Количество особей в популяции</label>
-                <div class="col-sm-3">
-                    <input type="number" name="population_size" id="pop_size" class="form-control">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label for="limit" class="col-3 col-form-label">Максимальное число популяций</label>
-                <div class="col-sm-3">
-                    <input type="number" name="limit" id="limit" class="form-control">
-                </div>
-            </div>
-            <input type="submit" value="Запустить алгоритм">
-        </form>
 
-        <form class="branch-and-bound-algorithm-form" action="{% url 'schedule:branch_and_bound' %}" method='post'>
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ project.id }}">
-            <a href="#" class="js-submit-bb">Метод ветвей и границ</a>
-        </form>
-
-        <form class="heuristic-form" action="{% url 'schedule:heuristic' %}" method='post'>
-            {% csrf_token %}
-            <input type="hidden" name="id" value="{{ project.id }}">
-            <a href="#" class="js-submit-ph">Эвристика приоритетов</a>
-        </form>
-        <div class="statistic hidden"></div>
-        <div id="GanttChartDIV" class="gantt hidden"></div>
+            <div class="project-right-col col-md-9">
+{#                <div class="project-right-col__page project-right-col__page_active">#}
+{#                    {% include 'scheduling/tasks_list.html' %}#}
+{#                </div>#}
+                <form class="genetic-algorithm-form hidden form-horizontal" action="{% url 'schedule:ga' %}" method='post'>
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ project.id }}">
+                    <div class="form-group row">
+                        <label for="prob_cross" class="col-sm-5 col-form-label">Соотношение кроссинговера к мутации</label>
+                        <div class="col-sm-3">
+                            <input type="number" name="probability_crossover" id="prob_cross" class="form-control"
+                                   min="0" max="1" step="0.1">
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="pop_size" class="col-sm-5 col-form-label">Количество особей в популяции</label>
+                        <div class="col-sm-3">
+                            <input type="number" name="population_size" id="pop_size" class="form-control">
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="limit" class="col-sm-5 col-form-label">Максимальное число популяций</label>
+                        <div class="col-sm-3">
+                            <input type="number" name="limit" id="limit" class="form-control">
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                    <input type="submit" value="Запустить алгоритм">
+                </form>
+                <div class="statistic hidden"></div>
+                <div id="GanttChartDIV" class="gantt hidden"></div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block body_js %}
     <script src="{% static 'core/js/libs/highcharts.js' %}"></script>
-    <script src="{% static 'scheduling/js/project.js' %}"></script>
     <script src="{% static 'core/js/libs/jsgantt/jsgantt.js' %}"></script>
-    <script>
-        var g = new JSGantt.GanttChart('g', document.getElementById('GanttChartDIV'), 'day');
+    <script type="text/javascript">
+        var g = new JSGantt.GanttChart(document.getElementById('GanttChartDIV'), 'day');
     </script>
+    <script src="{% static 'scheduling/js/project.js' %}"></script>
 {% endblock %}
