@@ -11,7 +11,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
 
     search_fields = ('name', 'author')
-    ordering = ('author', 'name')
+    ordering = ('name', 'author')
     list_editable = ('is_active',)
 
     readonly_fields = ('created', 'updated')
@@ -20,11 +20,11 @@ class ProjectAdmin(admin.ModelAdmin):
 @admin.register(ProjectMember)
 class ProjectMemberAdmin(admin.ModelAdmin):
     list_display = ('project', 'user', 'role', 'is_project_admin', 'is_active')
-    list_filter = ('is_project_admin', 'is_active')
+    list_filter = ('is_project_admin', 'is_active', 'role')
 
     search_fields = ('project', 'user', 'role')
     ordering = ('project', 'user')
-    list_editable = ('is_active',)
+    list_editable = ('is_active', 'is_project_admin')
 
     readonly_fields = ('created', 'updated')
 
@@ -35,7 +35,7 @@ class PredecessorsInline(TabularInline):
     fk_name = 'task'
     extra = 1
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == "predecessor":
             if len(request.resolver_match.args) > 0:
                 parent_obj_id = request.resolver_match.args[0]
@@ -49,7 +49,7 @@ class ExecutorsInline(TabularInline):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'project', 'executor', 'soft_deadline', 'hard_deadline', 'is_active')
+    list_display = ('name', 'project', 'duration', 'soft_deadline', 'hard_deadline', 'is_active')
     list_filter = ('is_active', 'project')
 
     search_fields = ('name', 'author', 'description')

@@ -36,7 +36,7 @@ class UserAdmin(ImportExportMixin, DjangoUserAdmin):
     resource_class = UserResource
 
     def get_avatar_img(self, obj):
-        default_avatar = u'core/img/placeholder_200.png'
+        default_avatar = u'core/img/default_avatar.png'
         img_tag = u'<img src="{0}{1}" width="100" height="100"/>'
         if obj.avatar:
             return format_html(img_tag, settings.MEDIA_URL, obj.avatar)
