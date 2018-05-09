@@ -1,7 +1,7 @@
+# coding=utf-8
+from __future__ import unicode_literals
 from django.contrib import admin
 from django.contrib.admin import TabularInline
-
-from core.models import User
 from scheduling.models import Project, Task, ProjectMember, Predecessor
 
 
@@ -45,6 +45,9 @@ class PredecessorsInline(TabularInline):
 
 class ExecutorsInline(TabularInline):
     model = Task.executors.through
+    verbose_name = 'Исполнитель'
+    verbose_name_plural = 'Исполнители'
+    extra = 1
 
 
 @admin.register(Task)
