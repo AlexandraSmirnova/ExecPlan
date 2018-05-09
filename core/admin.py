@@ -1,13 +1,8 @@
 # coding=utf-8
-from django.conf.urls import url
 from django.contrib import admin
-from django.contrib.auth import authenticate, login
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.utils.html import format_html
 from import_export.admin import ImportExportMixin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib import messages
 from app import settings
 from core.models import User
 from core.resources import UserResource
@@ -48,5 +43,3 @@ class UserAdmin(ImportExportMixin, DjangoUserAdmin):
         return format_html(img_tag, settings.STATIC_URL, default_avatar)
     get_avatar_img.allow_tags = True
     get_avatar_img.description = u'Изображение'
-
-

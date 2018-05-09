@@ -1,3 +1,5 @@
+# coding=utf-8
+from __future__ import unicode_literals
 import time
 from django.core.management import BaseCommand
 
@@ -16,23 +18,30 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('p_id', default=1, type=int)
+        parser.add_argument('algorithm', default=1, type=int)
 
     def handle(self, *args, **options):
         project_id = options['p_id']
+        algorithm = options['algorithm']
         tasks = Task.objects.get_project_tasks(project_id)
         new_tasks = []
         for task in tasks:
             new_tasks.append(task.as_dict())
 
         times = []
-        delayed_days = 0
+        # delayed_days = 0
 
         for i in range(self.LAUNCH_COUNT):
             operators = ScheduleOperators(task_objects=new_tasks)
-            gs = GeneticAlgorithmSchedule(self.PROBABILITY_CROSSOVER, self.POPULATION_SIZE,self.LIMIT,
-                                          operators)
-            # gs = PriorityHeuristic(operators=operators)
-            # gs = BranchAndBoundAlgorithm(operators=operators)
+
+            if algorithm == 1:
+                gs = GeneticAlgorithmSchedule(self.PROBABILITY_CROSSOVER, self.POPULATION_SIZE, self.LIMIT,
+                                              operators)
+            elif algorithm == 2:
+                gs = PriorityHeuristic(operators=operators)
+            else:
+                gs = BranchAndBoundAlgorithm(operators=operators)
+
             t_start = time.time()
             statistic = gs.run()
             t_end = time.time()
@@ -40,7 +49,10 @@ class Command(BaseCommand):
             times.append(t_end - t_start)
             # print statistic
             # delayed_days += statistic['delayed_days']
-            print 'best: {}'.format(statistic['best_fit'][-1])
+            if algorithm != 2:
+                print 'best: {}'.format(statistic['best_fit'][-1])
+            else:
+                print 'best: {}'.format(statistic['best_fit'])
             # print 'delayed days: {}'.format(statistic['delayed_days'])
             # print 'ave: {}'.format(statistic['ave_fit'][-1])
             # print 'cache: {}'.format(sum(statistic['cache_calls'])/len(statistic['cache_calls']))
