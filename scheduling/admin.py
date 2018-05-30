@@ -20,7 +20,7 @@ class ProjectAdmin(admin.ModelAdmin):
 @admin.register(ProjectMember)
 class ProjectMemberAdmin(admin.ModelAdmin):
     list_display = ('project', 'user', 'role', 'is_project_admin', 'is_active')
-    list_filter = ('is_project_admin', 'is_active', 'role')
+    list_filter = ('is_project_admin', 'is_active', 'role', 'project')
 
     search_fields = ('project', 'user', 'role')
     ordering = ('project', 'user')

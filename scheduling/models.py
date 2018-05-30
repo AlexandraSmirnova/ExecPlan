@@ -85,7 +85,7 @@ class Task(DefaultModel):
         return self.name
 
     def as_dict(self):
-        return {
+        dic = {
             'id': self.id,
             # 'executor_id': self.executor.id,
             'executors_ids': [x.id for x in self.executors.all()],
@@ -94,8 +94,13 @@ class Task(DefaultModel):
             'end_time': None,
             's_deadline_time': (self.soft_deadline - self.project.start_date).days * 9 if self.soft_deadline else 0,
             'h_deadline_time': (self.hard_deadline - self.project.start_date).days * 9 if self.hard_deadline else 0,
-            'predecessors': list(Predecessor.objects.filter(task=self).values_list('predecessor_id', flat=True))
+            'predecessors': list(Predecessor.objects.filter(task=self).values_list('predecessor_id', flat=True)),
+            'role': ProjectMember.objects.filter(user=self.executors.first()).first().role
         }
+        members = ProjectMember.objects.filter(project_id=self.project_id, is_active=True, role=dic['role']).exclude(user_id=1)
+        dic['demanded_count'] = len(dic['executors_ids'])
+        dic['limit'] = len(members)
+        return dic
 
 
 class Predecessor(models.Model):

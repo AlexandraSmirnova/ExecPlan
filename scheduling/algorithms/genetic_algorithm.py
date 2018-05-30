@@ -223,7 +223,6 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
     def get_statistic(self, fits):
         # durations = [self.operators.get_schedule_duration(x[1]) for x in fits]
         # cache_calls = len(fits) - self.operators.fitness_count
-        self.operators.fitness_count = 0
         return {
             'best_fit': min(fits)[0],
             'ave_fit': sum([x[0] for x in fits]) / len(fits),

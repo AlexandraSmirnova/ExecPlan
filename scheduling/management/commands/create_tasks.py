@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import random
 from datetime import timedelta
 from django.core.management import BaseCommand
-from scheduling.benchmarks.benchmark_j1201_1 import durations, members_count, members_type, successors
+from scheduling.benchmarks.benchmark_100_10 import durations, members_count, members_type, successors
 from scheduling.models import ProjectMember, Predecessor, Task, Project
 from utils.string_utils import get_random_string
 
@@ -30,13 +30,15 @@ class Command(BaseCommand):
             name = self.get_random_name()
             duration = self.get_duration()
             member_id = self.get_member()
-            # soft_deadline, hard_deadline = self.get_deadlines(project_id, duration)
+            soft_deadline, hard_deadline = self.get_deadlines(duration)
 
             task = Task.objects.create(
                         name=name,
                         project_id=self.project_id,
                         duration=duration,
                         author_id=member_id,
+                        soft_deadline=soft_deadline,
+                        hard_deadline=hard_deadline,
                     )
             self.create_executors(task)
             self.tasks_count += 1
@@ -70,7 +72,7 @@ class Command(BaseCommand):
         return None
 
     def create_executors(self, task):
-        members = ProjectMember.objects.filter(project_id=self.project_id, is_active=True)
+        members = ProjectMember.objects.filter(project_id=self.project_id, is_active=True).exclude(user_id=1)
         members_cnt = members_count[self.tasks_count]
         member_type = members_type[self.tasks_count]
         if member_type:
@@ -111,7 +113,7 @@ class Command(BaseCommand):
             for s in succ:
                 Predecessor.objects.create(task=self.available_tasks[s-2], predecessor=task)
 
-    def get_deadlines(self, project_id, duration):
+    def get_deadlines(self, duration):
         with_constrains = random.choice([True, False])
 
         if not with_constrains:
@@ -123,7 +125,7 @@ class Command(BaseCommand):
             'both_deadlines': 2
         }
 
-        project = Project.objects.filter(id=project_id).first()
+        project = Project.objects.filter(id=self.project_id).first()
         d_type = random.randint(0, 2)
         addition_days = random.randint(self.tasks_count + int(duration / 9), self.tasks_count + 100)
 

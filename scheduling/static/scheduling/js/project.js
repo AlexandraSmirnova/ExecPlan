@@ -113,7 +113,7 @@ $(document).ready(function () {
         if( g ) {
             for( var s in schedule) {
                 var item = schedule[s];
-                g.AddTaskItem(new JSGantt.TaskItem(item.id_num, item.name,  item.start_time, item.end_time, 'gtaskred', '', 0, item.executor_name, 0, 0, 0, 1, item.predecessors, '', '', g));
+                g.AddTaskItem(new JSGantt.TaskItem(item.id_num, item.name,  item.start_time, item.end_time, 'gtaskred', '', 0, 'fdsf'/*item.executor_name*/, 0, 0, 0, 1, item.predecessors, '', '', g));
             }
 
             g.Draw();

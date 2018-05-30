@@ -11,9 +11,11 @@ from utils.decorators import memoize
 class ScheduleOperators(object):
     FINE_FOR_DELAY = 100
 
-    def __init__(self, task_objects=None):
+    def __init__(self, task_objects=None, fixed_executors=False):
         self.task_objects = task_objects
         self.task_count = len(task_objects)
+        self.fixed_executors = fixed_executors
+        self.check_executors_func = self.is_executors_busy if fixed_executors else self.is_executors_busy_by_count
         self.predecessors = []
 
         id_indexer = dict((p['id'], i) for i, p in enumerate(task_objects))
@@ -42,7 +44,8 @@ class ScheduleOperators(object):
     def decode_chromosome(self, chromosome):
         max_time = 1.0
         decoded_ch = copy.deepcopy(self.task_objects)
-
+        # print '---'
+        # print chromosome
         for gen_id in chromosome:
             task = decoded_ch[gen_id]
             duration = task['duration']
@@ -52,18 +55,21 @@ class ScheduleOperators(object):
                 preds_ended = True
 
                 while executor_check or not preds_ended:
-                    executor_check, time1 = self.is_executors_busy(decoded_ch, task['executors_ids'],
-                                                                  max_time, max_time + duration)
+                    executor_check, time1 = self.check_executors_func(decoded_ch, max_time, max_time + duration,
+                                                                      task['executors_ids'] if self.fixed_executors else
+                                                                      task['demanded_count'],
+                                                                      task['limit'], task['role'])
                     preds_ended, time2 = self.check_predecessors_end(decoded_ch, gen_id, max_time)
                     max_time = max(time1, time2)
 
             task['start_time'] = max_time
             task['end_time'] = max_time + duration
+            # print task['id'], task['start_time'], task['end_time'], task['duration']
 
         return decoded_ch
 
     @staticmethod
-    def is_executors_busy(decoded_chromosome, executors_ids, start_time, end_time):
+    def is_executors_busy(decoded_chromosome, start_time, end_time, executors_ids, *args):
         result = False
         time_till = start_time
         # tasks_list = filter(lambda x: x['executor_id'] == executor, decoded_chromosome)
@@ -72,6 +78,21 @@ class ScheduleOperators(object):
             for task in tasks_list:
                 if not (start_time > task['end_time'] or end_time < task['start_time']):
                     return True, task['end_time'] + 1
+
+        return result, time_till
+
+    @staticmethod
+    def is_executors_busy_by_count(decoded_chromosome, start_time, end_time, demanded_count, limit, role):
+        result = False
+        time_till = start_time
+        available_executors = limit
+        tasks_list = filter(lambda x: x['end_time'] > start_time and x['start_time'] < end_time and x['role'] == role,
+                            decoded_chromosome)
+        tasks_list.sort(key=lambda x: x['end_time'])
+        for task in tasks_list:
+            available_executors -= task['demanded_count']
+            if available_executors < demanded_count:
+                return True, task['end_time'] + 1
 
         return result, time_till
 
@@ -150,7 +171,7 @@ def prepare_data_for_gantt(schedule):
         data.append({
             'id_num': task.id,
             'name': task.name,
-            'executor_name': User.objects.filter(id=item.get('executors_ids')[0]).first().get_full_name(),
+            # 'executor_name': User.objects.filter(id=item.get('executors_ids')[0]).first().get_full_name(),
             'predecessors': ", ".join([str(x) for x in item.get('predecessors')])
         })
 

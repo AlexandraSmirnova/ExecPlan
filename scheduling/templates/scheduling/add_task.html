@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <h3>Новая задача</h3>
+        <form id="js-add-task-form" class="form-horizontal" action='{% url 'schedule:add_task' project_id %}' method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group row">
+                    <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
+                    <div class="col-3">
+                        {{ field }}
+                        <div class="form-{{ field.name }}-error form-control-feedback"></div>
+                    </div>
+                    {% if field.help_text %}
+                        <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body_js %}
+    <script src="{% static 'scheduling/js/add_task.js' %}"></script>
+{% endblock %}
