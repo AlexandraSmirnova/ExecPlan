@@ -3,12 +3,17 @@
 
 {% block content %}
     <div class="container">
-        <h3>Новая задача</h3>
+        <h3>
+            <a href="{% url 'schedule:project' project_id %}" style="margin-right: 10px"><img src="{% static 'core/img/back.png' %}" width="32" height="32"></a>
+            Новая задача
+        </h3>
         <form id="js-add-task-form" class="form-horizontal" action='{% url 'schedule:add_task' project_id %}' method="post">
             {% csrf_token %}
             {% for field in form %}
                 <div class="form-group row">
-                    <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
+                    {% if field in form.visible_fields %}
+                        <label for="id_{{ field.name }}" class="col-2 col-form-label">{{ field.label }}</label>
+                    {% endif %}
                     <div class="col-3">
                         {{ field }}
                         <div class="form-{{ field.name }}-error form-control-feedback"></div>
