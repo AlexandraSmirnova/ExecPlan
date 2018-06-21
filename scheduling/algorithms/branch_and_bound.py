@@ -27,7 +27,9 @@ class BranchAndBoundAlgorithm(object):
 
         for solution in solutions:
             new_path = path + list([solution])
-            if not self.operators.predecessors_included(new_path, solution) or not self.operators.check_deadline(new_path):
+
+            pred_included, pred = self.operators.predecessors_included(new_path, solution)
+            if not pred_included or not self.operators.check_deadline(new_path):
                 continue
 
             fitness = self.operators.fitness(new_path)

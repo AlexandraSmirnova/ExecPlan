@@ -153,7 +153,8 @@ class GeneticAlgorithmSchedule(GeneticAlgorithm):
             yield (first_parent, second_parent)
 
     def check_gen(self, chromosome, gen):
-        return gen not in chromosome and self.operators.predecessors_included(chromosome, gen)
+        valid, pred = self.operators.predecessors_included(chromosome, gen)
+        return gen not in chromosome and valid
 
     def fitness(self, chromosome):
         return self.operators.fitness(chromosome)

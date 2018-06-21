@@ -11,7 +11,7 @@ from scheduling.models import Task
 
 
 class Command(BaseCommand):
-    PROBABILITY_CROSSOVER = 0.4
+    PROBABILITY_CROSSOVER = 0.2
     POPULATION_SIZE = 20
     LIMIT = 200
     LAUNCH_COUNT = 5

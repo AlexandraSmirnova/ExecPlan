@@ -74,7 +74,7 @@ class ScheduleOperators(object):
         time_till = start_time
         # tasks_list = filter(lambda x: x['executor_id'] == executor, decoded_chromosome)
         for executor_id in executors_ids:
-            tasks_list = filter(lambda x: executor_id in x['executors_ids'], decoded_chromosome)
+            tasks_list = filter(lambda x: executor_id in x['executors_ids'] and x['end_time'] and x['start_time'], decoded_chromosome)
             for task in tasks_list:
                 if not (start_time > task['end_time'] or end_time < task['start_time']):
                     return True, task['end_time'] + 1
@@ -118,7 +118,6 @@ class ScheduleOperators(object):
 
         for x in decoded:
             if x['h_deadline_time'] and x['end_time'] > x['h_deadline_time']:
-                # print x['id']
                 return False
 
         return True
@@ -171,7 +170,7 @@ def prepare_data_for_gantt(schedule):
         data.append({
             'id_num': task.id,
             'name': task.name,
-            # 'executor_name': User.objects.filter(id=item.get('executors_ids')[0]).first().get_full_name(),
+            'executor_name': User.objects.filter(id=item.get('executors_ids')[0]).first().get_full_name(),
             'predecessors': ", ".join([str(x) for x in item.get('predecessors')])
         })
 

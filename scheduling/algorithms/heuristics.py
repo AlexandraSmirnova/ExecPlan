@@ -16,6 +16,7 @@ class PriorityHeuristic(object):
             x['s_deadline_time'] if x['s_deadline_time'] else 999999,
             x['duration']
         ))
+        # print [x['duration'] for x in sorted_tasks]
         chromosome = []
         for item in sorted_tasks:
             index = [tasks.index(elem) for elem in tasks if elem['id'] == item['id']]
